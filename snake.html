@@ -1,0 +1,149 @@
+<html>
+
+<!-- Note: The code is quick, fast and hacky -->
+<!-- 
+        A simple snake-like-game where the player controls a snake. 
+        The aim is to grow the snake by eating the apple. 
+        The more apples you eat the longer the snake gets and thus, the harder the game becomes the more apples the snake eats.
+    -->
+
+<head>
+
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: Helvetica, Arial, Garamond;
+        }
+
+        #game-row {
+            display: flex;
+            flex-direction: row;
+            margin: 3em 1em 1em 1em;
+        }
+
+        #game-container {}
+
+        #gc {}
+
+        #game-info {
+            margin-left: 1em;
+        }
+
+        #game-info h1 {
+            font-size: 3em;
+            font-weight: thin;
+            margin: .5em 0px .5em 0px;
+        }
+
+        #game-info p {
+            font-size: 1.5em;
+            margin: .5em 0px .5em 0px;
+        }
+    </style>
+
+</head>
+
+
+<body>
+
+    <section id="game-row">
+        <div id="game-container">
+            <!-- puts a div around your game, in a box, to control it without distorting your game graphics -->
+            <canvas id="gc" width="400" height="400"></canvas><!-- Creates a canvas element with a specified width and height of 400 pixels (square) -->
+        </div>
+        <aside id="game-info">
+            <h1>Snake Game</h1>
+            <p>Click on the gameboard and use the arrow keys to control the snake.</p>
+            <p>The aim is to grow the snake by eating the apple. </p>
+            <p>The more apples you eat the longer the snake gets and thus, the harder the game becomes the more apples
+                the snake eats.</p>
+        </aside>
+    </section>
+
+    <script>
+
+        window.onload = function () { // Run this script on window load
+            canv = document.getElementById("gc"); /* set shorthand reference variable for the canvas element */
+            ctx = canv.getContext("2d");  /* set graphic context for the canvas context(ctx)*/
+
+            document.addEventListener("keydown", keyPush); /* set the two player driven events in the game */
+            setInterval(game, 1000 / 15); /* set a time to call a game method 15 times per second */
+        }
+        px = py = 10; /* Initial Player Position */
+        gs = tc = 20; /* Grid Size and tile count (20x20=400), NOTE: canvas width and height is 400 */
+        ax = ay = 15; /* Initial Goal (the apple)*/
+        xv = yv = 0; /* Initial Player Velocity */
+        trail = []; /* Set an empty array for the snakes trail (the trail is the coordinates of the snake and it's tail[required to paint the snake]) */
+        tail = 5; /* Sets the default size of the snakes tail (this is the default length of the snake) */
+        function game() {
+            px += xv; /* Player X position is moved according to X velocity */
+            py += yv; /* Play Y position is moved according to Y velocity */
+
+            /* The following series of 'if statements' repositions the player on the screen according to the screen edges (allows loop scrolling) */
+            if (px < 0) {
+                px = tc - 1;
+            }
+            if (px > tc - 1) {
+                px = 0;
+            }
+            if (py < 0) {
+                py = tc - 1;
+            }
+            if (py > tc - 1) {
+                py = 0;
+            }
+
+            /* Every frame this paints the canvas black */
+            ctx.fillStyle = "black";
+            ctx.fillRect(0, 0, canv.width, canv.height);
+
+            /* Every frame this paints the snake lime (required as the snake moves once every frame)*/
+            ctx.fillStyle = "lime";
+            for (var i = 0; i < trail.length; i++) {
+                ctx.fillRect(trail[i].x * gs, trail[i].y * gs, gs - 2, gs - 2); /* Paint the tile at coordinate of the tail (top-left of grid tile) the same size of a grid tile */
+                if (trail[i].x == px && trail[i].y == py) { /* If the trail x or y co-ord matches the x or y co-ord of the player (head of the snake) */
+                    tail = 5; /* Set the tail to 5 */
+                }
+            }
+
+            /* The code below checks the game state */
+            trail.push({ x: px, y: py }); /* Set reference array for player position to check if the game state */
+            while (trail.length > tail) { /* Set game run conditions */
+                trail.shift(); /* Call game run method (game still on)*/
+            }
+
+            /* The code below executes when the snake eats the apple */
+            if (ax == px && ay == py) { /* If the player 'eats' the apple */
+                tail++; /* Grow the players tail by 1 */
+                ax = Math.floor(Math.random() * tc); // Set the apple X co-ord to a random number between 1 and 20 (any tile across the X axis)
+                ay = Math.floor(Math.random() * tc); // Set the apple X co-ord to a random number between 1 and 20 (any tile across the Y axis)
+            }
+
+            /* Draw the apple at it's current position */
+            ctx.fillStyle = "red";
+            ctx.fillRect(ax * gs, ay * gs, gs - 2, gs - 2); /* Paint the tile at coordinate of the apple (top-left of grid tile) the same size of a grid tile */
+
+        }
+        function keyPush(evt) { /* create an event function for the keyboard keys*/
+            switch (evt.keyCode) { /* switch case based on what arrow key is pressed */
+                case 37: /* Arrow key number */
+                    xv = -1; yv = 0; /* set velocity as LEFT, UP, RIGHT or DOWN */
+                    break; /* end switch statement execution */
+                case 38:
+                    xv = 0; yv = -1;
+                    break;
+                case 39:
+                    xv = 1; yv = 0;
+                    break;
+                case 40:
+                    xv = 0; yv = 1;
+                    break;
+            }
+        }
+    </script>
+
+</body>
+
+</html>
